@@ -1,0 +1,10 @@
+{"detalle": "ScriptGameObjectDetalle.h",
+ "partes": [
+  {"archivo": "ScriptGameObjectServicios.cpp", "desde": "tablaServicios"},
+  {"archivo": "ScriptGameObjectServiciosEntorno.cpp",
+   "auxiliares": ["servicios(Reproducir|Detener|Volumen)\\w*", "serviciosObjetoPor\\w*", "serviciosTecla\\w*", "serviciosDeltaMouse\\w*", "servicios(Fijar)?GravedadGlobal\\w*"]},
+  {"archivo": "ScriptGameObjectServiciosObjetos.cpp",
+   "auxiliares": ["servicios(Crear|Destruir|Clonar)Objeto", "serviciosAgregar\\w*", "serviciosObjetoDeCollider", "serviciosRaycast", "servicios(Punto|Normal|Distancia)Impacto\\w*", "servicios(Instanciar|Listar)Prefab\\w*"]},
+  {"archivo": "ScriptGameObjectServiciosInterfaz.cpp",
+   "auxiliares": ["serviciosInterfaz\\w*"]}
+ ]}

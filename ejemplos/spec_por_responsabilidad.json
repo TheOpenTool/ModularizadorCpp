@@ -1,0 +1,9 @@
+{"detalle": "GameSceneDetalle.h",
+ "partes": [
+  {"archivo": "GameSceneSimulacion.cpp", "desde": "GameScene::saveScene"},
+  {"archivo": "GameSceneCamaras.cpp", "desde": "GameScene::getActiveCamera"},
+  {"archivo": "GameSceneGUI.cpp", "desde": "GameScene::GUI"},
+  {"archivo": "GameSceneUpdate.cpp", "desde": "GameScene::emitirParticulas"},
+  {"archivo": "GameSceneScripts.cpp", "desde": "GameScene::encolarScriptsIniciales"},
+  {"archivo": "GameSceneFrame.cpp", "desde": "GameScene::pickObject"}
+ ]}
