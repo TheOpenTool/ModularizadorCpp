@@ -50,6 +50,23 @@ Para nombres con significado, usar un spec:
 - `compartidas`: variables (por ejemplo `const char* X = "..."`, cuyo puntero
   no es constante) que deben tener una sola instancia.
 
+### Funciones más grandes que el límite
+
+Si una sola función pasa el límite y está hecha de secciones `{ ... }` (lo
+típico en un `main` de tests), primero se separan sus secciones en funciones:
+
+```bash
+python3 modularizador/partir_funcion.py tests/EscenaTests.cpp main --aplicar
+# compilar, correr los tests y commitear; despues:
+python3 modularizar.py tests/EscenaTests.cpp --tests --aplicar --cmake CMakeLists.txt
+```
+
+Cada sección pasa a `static void seccionNN(...)` y recibe por referencia las
+variables de la función original que usa (`const T&` si eran `const`). El
+bloque se copia con sus llaves, así lo que declara sigue en un ámbito anidado.
+No se extrae una sección que haga `return`/`break`/`continue` fuera de una
+lambda ni una que use variables declaradas con `auto`.
+
 Herramientas sueltas: `modularizador/dividir.py <archivo> --listar` muestra las
 definiciones de primer nivel con su línea y tamaño, y
 `modularizador/verificar.py <original> <archivos...>` repite la verificación.
