@@ -551,6 +551,12 @@ def main():
     # puede compartirse; las funciones y constantes siguen en un namespace
     # anonimo (una copia por unidad, como antes). Las variables mutables se
     # declaran 'extern' en <Base>Detalle y se definen una vez en el original.
+    def declaracion_extern(v):
+        v = re.sub(r"^(\s*(//[^\n]*\n|/\*.*?\*/))*\s*", "", v, flags=re.S).strip()
+        decl = re.sub(r"\s*(=.*)?;$", ";", v, flags=re.S)
+        decl = re.sub(r"\s*\{[^}]*\};$", ";", decl)
+        return "extern " + decl
+
     RE_TIPO = re.compile(r"(struct|class|enum|union|using|typedef|template\s*<[^>]*>\s*(struct|class))\b")
     entradas_header = []  # (ns, envoltorio: ''|'anon'|'detalle', texto, tipo)
     variables = []        # (ns, texto)
@@ -567,6 +573,7 @@ def main():
         if u["anon"]:
             if u["clase"] == "var":
                 variables.append((u["ns"], u["texto"]))
+                entradas_header.append((u["ns"], "detalle", declaracion_extern(u["texto"]), "proto"))
             elif RE_TIPO.match(codigo):
                 entradas_header.append((u["ns"], "detalle", u["texto"].strip("\n"), "bloque"))
             else:
@@ -574,10 +581,12 @@ def main():
         elif d["tipo"] == "bloque" and codigo.startswith("static ") and \
                 not codigo.rstrip().endswith("}") and es_variable_mutable(codigo):
             variables.append((u["ns"], codigo[len("static "):]))
+            entradas_header.append((u["ns"], "detalle", declaracion_extern(codigo[len("static "):]), "proto"))
         elif d["tipo"] == "bloque" and not codigo.rstrip().endswith("}") and \
                 not re.match(r"(static|extern|using|typedef|namespace|struct|class|enum|union|template)\b", codigo) \
                 and es_variable_mutable(codigo):
             variables.append((u["ns"], u["texto"]))
+            entradas_header.append((u["ns"], "detalle", declaracion_extern(u["texto"]), "proto"))
         else:
             entradas_header.append((u["ns"], "", u["texto"].strip("\n"), d["tipo"]))
 
@@ -627,14 +636,6 @@ def main():
         return "\n\n".join(salida)
 
     extras = []
-    if variables:
-        extras.append(("", "", "// Estado de la unidad original: una sola instancia (se define en %s.cpp)." % base,
-                       "coment"))
-        for ns_v, v in variables:
-            v = re.sub(r"^(\s*(//[^\n]*\n|/\*.*?\*/))*\s*", "", v, flags=re.S).strip()
-            decl = re.sub(r"\s*(=.*)?;$", ";", v, flags=re.S)
-            decl = re.sub(r"\s*\{[^}]*\};$", ";", decl)
-            extras.append((ns_v, "detalle", "extern " + decl, "proto"))
     if prototipos_libres:
         extras.append(("", "", "// Funciones repartidas entre las unidades.", "coment"))
         for ns_p, fp in prototipos_libres:

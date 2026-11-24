@@ -132,8 +132,13 @@ def main():
     salidas, texto = correr_division(a.archivo, elegido, aplicar=True)
     archivos = [f for _, f in salidas]
     v = subprocess.run([sys.executable, VERIFICAR, a.archivo] + archivos, capture_output=True, text=True)
-    inesperadas = [l for l in v.stdout.splitlines()
-                   if not l.startswith("OK") and not any(re.match(e, l) for e in ESPERADAS)]
+    lineas = v.stdout.splitlines()
+    # "static f(...) {" que falta y "f(...) {" que sobra: es el mismo codigo
+    # con el 'static' quitado al repartir la funcion.
+    sin_static = {re.sub(r"^FALTA x\d+: static ", "", l) for l in lineas if re.match(r"FALTA x\d+: static ", l)}
+    inesperadas = [l for l in lineas
+                   if not l.startswith("OK") and not any(re.match(e, l) for e in ESPERADAS)
+                   and not (l.startswith("SOBRA") and re.sub(r"^SOBRA x\d+: ", "", l) in sin_static)]
     if inesperadas:
         print("VERIFICACION: diferencias a revisar")
         for l in inesperadas:
